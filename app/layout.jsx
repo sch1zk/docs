@@ -21,7 +21,7 @@ export const metadata = {
 const navbar = (
   <Navbar
     logo={<b>Главная</b>}
-    projectLink="https://github.com/sch1zk/docs-js/tree/main"
+    projectLink="https://github.com/sch1zk/docs-js/tree/master"
   />
 )
 const footer = (
@@ -36,7 +36,7 @@ export default async function RootLayout({ children }) {
       <Head></Head>
       <body>
         <Layout
-          docsRepositoryBase="https://github.com/sch1zk/docs-js/tree/main"
+          docsRepositoryBase="https://github.com/sch1zk/docs-js/tree/master"
           navbar={navbar}
           pageMap={await getPageMap()}
           footer={footer}

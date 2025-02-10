@@ -8,13 +8,13 @@ const nextConfig = {
   images: {
     unoptimized: true // mandatory, otherwise won't export
   },
-  basePath: "/docs-js",
+  basePath: "/docs",
 
   // Optional: Change the output directory `out` -> `dist`
   // distDir: "build"
 }
 const withNextra = nextra({
-  search: false
+  search: false 
 })
  
 export default withNextra(nextConfig)
