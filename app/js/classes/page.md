@@ -1,0 +1,435 @@
+---
+title: Классы
+---
+
+## Определение класса
+
+> [!TIP]
+> 
+> `class Имя { тело }`
+
+```js
+// обычное определение
+class Person {
+  // тело класса
+}
+
+// создание анонимного класса и присваивание его переменной
+const Person = class {
+  // тело класса
+};
+```
+
+## Создание экземпляров класса
+
+Экземпляры класса создаются с помощью `new`. Каждый объект, созданный таким образом, является **уникальным экземпляром**.
+
+```js
+class Person {}
+
+const tom = new Person();
+const bob = new Person();
+
+console.log(tom instanceof Person); // true
+console.log(bob instanceof Person); // true
+console.log(tom === bob); // false (это разные объекты)
+```
+
+> [!TIP]
+> 
+> **Как это работает**
+> 
+> 1. Выделение памяти – создаётся новый пустой объект.
+> 2. Вызов конструктора – если он есть, в объект записываются начальные значения.
+> 3. Связывание с прототипом – новый объект получает доступ к методам класса.
+> 
+> ```js
+> class Person {
+>   constructor(name) {
+>     this.name = name;
+>   }
+> }
+> 
+> const alice = new Person("Alice");
+> console.log(alice.name); // "Alice"
+> ```
+
+## Поля и свойства класса
+
+**Поля класса** это переменные, которые хранят данные или состояние экземпляра. Они определяются внутри класса, но вне методов. В отличие от свойств объекта, поля класса создаются без использования `let`, `const` или `var`.
+
+```js
+class Person {
+  name;
+  age;
+}
+
+const tom = new Person();
+tom.name = "Tom";
+tom.age = 37;
+
+console.log(tom.name); // Tom
+console.log(tom.age);  // 37
+```
+
+> [!NOTE]
+> 
+> **Поля с начальными значениями**
+> 
+> Поля можно сразу инициализировать при объявлении, и это значение будет присваиваться каждому новому экземпляру.
+> ```js
+> class Person {
+>   name = "Unknown";
+>   age = 18;
+> }
+> 
+> const tom = new Person();
+> console.log(tom.name); // Unknown
+> console.log(tom.age);  // 18
+> ```
+
+> [!TIP]
+> 
+> **Особенности полей класса**
+> 
+> - Установленное значение можно перезаписать после создания экземпляра.
+> ```js
+> const tom = new Person();
+> console.log(tom.name); // Unknown
+> 
+> tom.name = "Tom";
+> console.log(tom.name); // Tom
+> ```
+> - Если поле не задано в классе, но присвоено экземпляру, оно будет добавлено, но не станет частью самого класса.
+> ```js
+> const bob = new Person();
+> bob.city = "New York";
+> console.log(bob.city); // New York
+> console.log("city" in Person); // false (поле не объявлено в классе)
+> ```
+
+## Методы класса
+
+Методы — это функции, определённые внутри класса, которые описывают **поведение экземпляров**. Они могут изменять состояние экземпляра, взаимодействовать с его полями или другими методами.
+
+```js
+class Person {
+  name;
+  age;
+
+  move(place) {
+    console.log(`${this.name} идёт в ${place}`);
+  }
+
+  eat(food) {
+    console.log(`${this.name} ест ${food}`);
+  }
+}
+
+const tom = new Person();
+tom.name = "Tom";
+
+tom.move("больницу"); // Tom идёт в больницу
+tom.eat("яблоки"); // Tom ест яблоки
+```
+
+> [!NOTE]
+> 
+> **Взаимодействие методов с полями**
+> 
+> Методы могут изменять свойства экземпляра.
+> ```js
+> class Counter {
+>   value = 0;
+> 
+>   increase() {
+>     this.value++;
+>   }
+> 
+>   reset() {
+>     this.value = 0;
+>   }
+> }
+> 
+> const counter = new Counter();
+> counter.increase();
+> console.log(counter.value); // 1
+> counter.reset();
+> console.log(counter.value); // 0
+> ```
+
+> [!TIP]
+> 
+> **Особенности методов класса**
+> 
+> - В методах `this` ссылается на объект, для которого вызывается метод.
+> - Методы могут вызывать другие методы внутри класса.
+> ```js
+> class Person {
+>   name;
+> 
+>   introduce() {
+>     console.log(`Меня зовут ${this.name}`);
+>   }
+> 
+>   greet() {
+>     this.introduce();
+>     console.log("Приятно познакомиться!");
+>   }
+> }
+> 
+> const alice = new Person();
+> alice.name = "Alice";
+> alice.greet();
+> // Меня зовут Alice
+> // Приятно познакомиться!
+> ```
+
+## Mixin (Смешивание поведения)
+
+Миксины позволяют добавлять поведение из разных источников в классы без использования множественного наследования. Вместо того чтобы наследовать несколько классов, можно объединить функциональность через миксины, что может быть удобно для расширения классов.
+
+Здесь классы `Bird` и `Fish` получают функциональность через миксины `CanFly` и `CanSwim`.
+
+```js
+const CanFly = {
+  fly() {
+    console.log('Flying!');
+  }
+};
+
+const CanSwim = {
+  swim() {
+    console.log('Swimming!');
+  }
+};
+
+class Animal {}
+
+class Bird extends Animal {}
+Object.assign(Bird.prototype, CanFly);
+
+class Fish extends Animal {}
+Object.assign(Fish.prototype, CanSwim);
+
+const bird = new Bird();
+bird.fly(); // Flying!
+
+const fish = new Fish();
+fish.swim(); // Swimming!
+```
+
+## Абстрактные классы
+
+В JavaScript абстрактные классы не поддерживаются напрямую, но их можно эмулировать. Для этого можно выбрасывать ошибку в конструкторе или методах, если класс не переопределен в дочерних классах.
+
+Здесь класс `Animal` не может быть инстанцирован напрямую, и дочерний класс должен реализовать метод `speak()`.
+
+```js
+class Animal {
+  constructor(name) {
+    if (new.target === Animal) {
+      throw new Error("Cannot instantiate abstract class Animal");
+    }
+    this.name = name;
+  }
+  speak() {
+    throw new Error("Method 'speak()' must be implemented");
+  }
+}
+
+class Dog extends Animal {
+  speak() {
+    console.log('Woof!');
+  }
+}
+
+const dog = new Dog('Buddy');
+dog.speak(); // Woof!
+```
+
+## Конструктор класса
+
+Конструктор это специальный метод, автоматически вызываемый при создании экземпляра класса с помощью `new`. Он используется для инициализации свойств объекта на основе переданных аргументов.
+
+Конструктор определяется через метод `constructor`. Если его не указать, создаётся конструктор по умолчанию, который ничего не делает.
+
+```js
+class Person {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+}
+
+const tom = new Person("Tom", 37);
+console.log(tom.name); // Tom
+console.log(tom.age);  // 37
+```
+
+> [!NOTE]
+> 
+> **Использование конструктора с полями и методами**
+> 
+> - Конструктор позволяет задавать значения по умолчанию и выполнять дополнительные действия:
+> 
+> ```js
+> class Person {
+>   constructor(name, age) {
+>     this.name = name || "Unknown";  // если имя не передано, установим "Unknown"
+>     this.age = age || 18;           // если возраст не передан, установим 18
+>   }
+> 
+>   introduce() {
+>     console.log(`Меня зовут ${this.name} и мне ${this.age} лет.`);
+>   }
+> }
+> 
+> const tom = new Person("Tom", 37);
+> tom.introduce(); // Меня зовут Tom и мне 37 лет.
+> 
+> const unknown = new Person();
+> unknown.introduce(); // Меня зовут Unknown и мне 18 лет.
+> ```
+
+> [!WARNING]
+> 
+> **Важные моменты**
+> 
+> - Конструктор выполняется **только один раз** при создании объекта.
+> - Конструктор возвращает не значение, а экземпляр класса.
+
+## Наследование
+
+Наследование позволяет классу (потомку) унаследовать свойства и методы от другого класса (родителя) с помощью `extends`. Для вызова конструктора родительского класса или доступа к его методам используется `super`.
+
+```js
+class Person {
+	constructor(name) {
+	    this.name = name;
+	}
+
+	greet() {
+		console.log(`Hello, my name is ${this.name}`);
+	}
+}
+
+const alice = new Person("Alice");
+alice.greet();
+// Hello, my name is Alice
+
+class Employee extends Person {
+	constructor(name, company) {
+		super(name); // вызов конструктора родителя
+		this.company = company;
+	}
+
+	// дочерний класс может переопределять методы родителя
+	greet() {
+		super.greet();  // вызов метода родителя
+		console.log(`I work as a ${this.position}`);
+	}
+}
+
+const bob = new Employee("Bob", "Developer");
+bob.greet();
+// Hello, my name is Bob
+// I work as a Developer
+```
+
+> [!TIP]
+> 
+> **Как использовать наследование**
+> 
+> - `extends` позволяет дочернему классу наследоваться от родительского.
+> - `super` вызывает метод или конструктор родительского класса.
+
+> [!NOTE]
+> 
+> **Особенности наследований без конструктора**
+> 
+> - Если в дочернем классе не определить конструктор, то будет использован конструктор родительского класса, если он есть.
+> - Если родительский класс не имеет конструктора, то конструктор дочернего класса будет вызван без использования `super`.
+
+## Приватные поля и методы
+
+В JavaScript можно использовать символ `#` для создания **приватных полей** или **методов** внутри классов. Эти поля доступны только внутри самого класса и не могут быть использованы извне или в наследниках.
+
+```js
+class Person {
+  #name;  // приватное поле
+  #age;   // приватное поле
+
+  constructor(name, age) {
+    this.#name = name;
+    this.#age = age;
+  }
+
+  #print() {  // приватный метод
+    console.log(`Name: ${this.#name}  Age: ${this.#age}`);
+  }
+
+  show() {
+    this.#print();  // вызов приватного метода внутри класса
+  }
+}
+
+const tom = new Person("Tom", 37);
+tom.show(); // Name: Tom  Age: 37
+```
+
+> [!WARNING]
+> 
+> **Важный момент**
+> 
+> Приватные поля и методы не могут быть доступны напрямую.
+> ```js
+> console.log(tom.#name); // Ошибка: Private field '#name' must be declared...
+> ```
+>Для работы с приватными данными обычно используют **публичные методы**, которые обеспечивают контроль доступа и изменения этих данных.
+
+> [!TIP]
+> 
+> **Зачем нужны приватные поля?**
+> 
+> Приватные поля помогают скрыть реализацию и обеспечивают **инкапсуляцию**, улучшая безопасность и предсказуемость объекта.
+
+## Статические поля и методы
+
+Статические члены класса принадлежат самому классу, а не его экземплярам. Они полезны для хранения данных и реализации методов, которые не зависят от состояния объектов. Для объявления статических членов используется ключевое слово `static`.
+
+```js
+class Person {
+  static retirementAge = 65;  // статическое поле
+
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  static calculateYearsToRetirement(person) {  // статический метод
+    return Person.retirementAge - person.age;
+  }
+}
+
+const tom = new Person("Tom", 37);
+console.log(Person.calculateYearsToRetirement(tom)); // 28
+```
+
+> [!WARNING]
+> 
+> **Важный момент**
+> 
+> Статические члены вызываются через **сам класс**, а не через его экземпляры.
+> 
+> ```js
+> console.log(tom.calculateYearsToRetirement());  // Ошибка: tom.calculateYearsToRetirement is not a function
+> ```
+
+> [!TIP]
+> 
+> **Преимущества статических полей и методов**
+> 
+> - Статические поля полезны для общих данных, таких как возраст выхода на пенсию.
+> - Статические методы выполняют операции, которые не зависят от состояния экземпляров.
+

@@ -1,0 +1,29 @@
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
+.topic-href {
+  color: #858585;
+  text-decoration: none;
+  transition: transform 0.3s ease, color 0.3s ease;
+  padding: 2px 0;
+}
+
+.topic-href:hover {
+  transform: scale(1.2);
+  transform-origin: center;
+  color: var(--foreground);
+}
