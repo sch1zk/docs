@@ -7,7 +7,9 @@ const nextConfig = {
   output: 'export',
   images: {
     unoptimized: true // mandatory, otherwise won't export
-  }
+  },
+  basePath: "/docs-js",
+
   // Optional: Change the output directory `out` -> `dist`
   // distDir: "build"
 }
