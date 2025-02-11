@@ -2,7 +2,6 @@ export default {
     "introduction-to-javascript": "",
     "variables": "",
     "data-types": "",
-    "type-conversion": "",
     "operators": "",
     "conditional-statements-and-loops": "",
     "functions": "",

@@ -11,7 +11,6 @@ export default function Home() {
           <Link href="/js/introduction-to-javascript" className="topic-href">Введение</Link>
           <Link href="/js/variables" className="topic-href">Переменные</Link>
           <Link href="/js/data-types" className="topic-href">Типы данных</Link>
-          <Link href="/js/type-conversion" className="topic-href">Преобразование типов</Link>
           <Link href="/js/operators" className="topic-href">Операторы</Link>
           <Link href="/js/conditional-statements-and-loops" className="topic-href">Условные конструкции и циклы</Link>
           <Link href="/js/functions" className="topic-href">Функции</Link>

@@ -52,33 +52,176 @@ let obj = { [fruit + "Count"]: 5 };
 console.log(obj.appleCount); // 5
 ```
 
-## Операции с объектом
+## Копирование объектов
 
-- Удаление свойства
-	Оператор `delete` позволяет удалить свойство из объекта.
-```js
-let user = { name: "Иван", age: 30 };
-delete user.age;
-console.log(user.age); // undefined
-```
-- Проверка существования свойства
-	Оператор `'key' in obj` возвращает `true`, если в объекте свойство `'key'`, в т.ч. даже если оно имеет значение `undefined`.
-```js
-let user = { name: "Иван" };
-console.log("name" in user); // true
-console.log("age" in user); // false
-```
-- Перебор свойств объекта
-	Цикл `for..in` позволяет пройтись по всем свойствам объекта.
-```js
-let user = { name: "Иван", age: 30 };
+Одними из ключевых отличий объектов от примитивов (таких как `number` или `string`) являются способы хранения и копирования:
+- **Примитивы** копируются как **значение** (новая копия данных).
+- **Объекты** копируются **по ссылке**, а не создают новый объект.
 
-for (let key in user) {
-  console.log(key, user[key]);
-}
-// "name Иван"
-// "age 30"
+> [!TIP]
+> 
+> **Как это работает**
+> 
+> Обе переменные user и admin ссылаются на один и тот же объект, поэтому изменения через одну переменную видны и через другую.
+> ```js
+> let user = { name: "Alex" };
+> 
+> let admin = user; // копируется ссылка на объект, а не сам объект
+> 
+> admin.name = "Gregory"; // изменяем свойство объекта через admin
+> 
+> // 'user' и 'admin' в этом случае указывают на один и тот же объект
+> console.log(user.name); // "Gregory"
+> ```
+
+> [!TIP]
+> 
+> **Когда это полезно?**
+> 
+> - Используется для передачи объектов между функциями.
+> - Позволяет изменять данные внутри переданного объекта без его явного возврата.
+
+> [!NOTE]
+> 
+> **Как создать копию объекта**
+> 
+> Чтобы создать независимую копию объекта, можно использовать:
+> 1. `Object.assign(dest, [src1, src2, src3...]) `
+> 	- `dest` - целевой объект.
+> 	- `[src1, src2, src3...]` - исходные объекты.
+> 2. `structuredClone()`
+> ```js
+> let user = { name: "John" };
+> let clone = Object.assign({}, user); // clone = { name: "John" }
+> 
+> let permissionView = { canView: true };
+> let permissionEdit = { canEdit: true };
+> 
+> Object.assign(clone, permissionView, permissionEdit);
+> console.log(clone); // { name: "John", canView: true, canEdit: true }
+> 
+>  // 'structuredClone()' cоздает полную копию, включая вложенные объекты
+> let deepClone = structuredClone(user);
+> ```
+
+## Модификация объектов
+
+В JavaScript объекты изменяемы, и их можно модифицировать с помощью методов, таких как `Object.assign()` и `Object.freeze()`.
+
+### `Object.assign()`
+
+Метод `Object.assign()` копирует все перечислимые свойства из одного или нескольких объектов в целевой объект. Он также позволяет добавлять или обновлять свойства.
+
+```js
+Object.assign(target, ...sources)
 ```
+- `target` - целевой объект, в который будут скопированы свойства.
+- `...sources` - один или несколько объектов, свойства которых будут скопированы в целевой объект.
+
+Метод возвращает целевой объект.
+
+Пример:
+
+```js
+const person = { name: "Иван", age: 30 };
+const address = { city: "Москва", country: "Россия" };
+
+const updatedPerson = Object.assign(person, address);
+
+console.log(updatedPerson); 
+// { name: "Иван", age: 30, city: "Москва", country: "Россия" }
+```
+
+> [!NOTE]
+> 
+> **Пример копирования объектов**
+> 
+> ```js
+> const original = { a: 1, b: 2 };
+> const copy = Object.assign({}, original);
+> 
+> console.log(copy); // { a: 1, b: 2 }
+> ```
+
+> [!NOTE]
+> 
+> **Пример использования с несколькими источниками**
+> 
+> ```js
+> const obj1 = { a: 1 };
+> const obj2 = { b: 2 };
+> const merged = Object.assign({}, obj1, obj2);
+> 
+> console.log(merged); // { a: 1, b: 2 }
+> ```
+
+### `Object.freeze()`
+
+Метод `Object.freeze()` замораживает объект, делая его неизменяемым (поверхностно).
+
+```js
+Object.freeze(obj)
+```
+
+После заморозки:
+- Нельзя добавлять, удалять или изменять свойства.
+- Замороженные объекты остаются неизменными, но вложенные объекты можно изменять.
+
+Пример заморозки объекта:
+
+```js
+const person = { name: "Иван", age: 30 };
+
+Object.freeze(person);
+
+person.age = 35;  // не будет выполнено
+person.city = "Москва";  // не будет выполнено
+
+console.log(person);  // { name: "Иван", age: 30 }
+```
+
+> [!WARNING]
+> 
+> **Важный момент**
+> 
+> Вложенные объекты остаются изменяемыми после заморозки родительского объекта.
+
+> [!NOTE]
+> 
+> **Пример с вложенными объектами**
+> 
+> ```js
+> const person = { name: "Иван", address: { city: "Москва", country: "Россия" } };
+> 
+> Object.freeze(person);
+> 
+> person.address.city = "Санкт-Петербург";  // Изменение возможно
+> 
+> console.log(person.address.city);  // "Санкт-Петербург"
+> ```
+
+> [!NOTE]
+> 
+> **Глубокая заморозка**
+> 
+> ```js
+> function deepFreeze(obj) {
+>   Object.freeze(obj);
+>   Object.getOwnPropertyNames(obj).forEach((prop) => {
+>     if (obj[prop] && typeof obj[prop] === "object") {
+>       deepFreeze(obj[prop]);
+>     }
+>   });
+>   return obj;
+> }
+> 
+> const person = { name: "Иван", address: { city: "Москва", country: "Россия" } };
+> 
+> deepFreeze(person);
+> 
+> person.address.city = "Санкт-Петербург";  // Не будет выполнено
+> console.log(person.address.city);  // "Москва"
+> ```
 
 ## Свойство из переменной
 
@@ -131,57 +274,132 @@ console.log(obj["null"]); // "значение null"
 > 
 > Такие свойства не перебираются в `for..in` и не видны через `Object.keys()`.
 
-## Копирование объектов
+## Деструктуризации объектов
 
-Одними из ключевых отличий объектов от примитивов (таких как `number` или `string`) являются способы хранения и копирования:
-- **Примитивы** копируются как **значение** (новая копия данных).
-- **Объекты** копируются **по ссылке**, а не создают новый объект.
+Деструктуризация позволяет извлечь несколько свойств объекта в отдельные переменные с помощью синтаксиса:
+```js
+const { property1, property2 } = object;
+```
+- `property1`, `property2` - это имена свойств объекта.
+- `object` - это сам объект, из которого мы хотим извлечь значения.
 
-> [!TIP]
-> 
-> **Как это работает**
-> 
-> Обе переменные user и admin ссылаются на один и тот же объект, поэтому изменения через одну переменную видны и через другую.
-> ```js
-> let user = { name: "Alex" };
-> 
-> let admin = user; // копируется ссылка на объект, а не сам объект
-> 
-> admin.name = "Gregory"; // изменяем свойство объекта через admin
-> 
-> // 'user' и 'admin' в этом случае указывают на один и тот же объект
-> console.log(user.name); // "Gregory"
-> ```
+Пример:
+```js
+const person = { name: "Иван", age: 30, gender: "Мужской" };
 
-> [!TIP]
-> 
-> **Когда это полезно?**
-> 
-> - Используется для передачи объектов между функциями.
-> - Позволяет изменять данные внутри переданного объекта без его явного возврата.
+// деструктуризация
+const { name, age } = person;
+
+console.log(name);  // "Иван"
+console.log(age);   // 30
+
+```
 
 > [!NOTE]
 > 
-> **Как создать копию объекта**
+> **Переименование переменных**
 > 
-> Чтобы создать независимую копию объекта, можно использовать:
-> 1. `Object.assign(dest, [src1, src2, src3...]) `
-> 	- `dest` - целевой объект.
-> 	- `[src1, src2, src3...]` - исходные объекты.
-> 2. `structuredClone()`
+> Если имена переменных должны отличаться от свойств объекта, можно использовать двоеточие:
 > ```js
-> let user = { name: "John" };
-> let clone = Object.assign({}, user); // clone = { name: "John" }
+> const { name: fullName, age: years } = person;
 > 
-> let permissionView = { canView: true };
-> let permissionEdit = { canEdit: true };
-> 
-> Object.assign(clone, permissionView, permissionEdit);
-> console.log(clone); // { name: "John", canView: true, canEdit: true }
-> 
->  // 'structuredClone()' cоздает полную копию, включая вложенные объекты
-> let deepClone = structuredClone(user);
+> console.log(fullName);  // "Иван"
+> console.log(years);     // 30
 > ```
+
+> [!NOTE]
+> 
+> **Дефолтные значения**
+> 
+> Для свойств, которые могут быть отсутствующими, можно задать значение по умолчанию:
+> ```js
+> const { name, age, gender = "Не указан" } = person;
+> 
+> console.log(gender);   // "Не указан" (значение по умолчанию)
+> ```
+
+> [!NOTE]
+> 
+> **Вложенные объекты**
+> 
+> Деструктуризация работает и с вложенными объектами:
+> ```js
+> const person = { name: "Иван", age: 30, address: { city: "Москва", country: "Россия" } };
+> 
+> // деструктуризация с вложенными объектами
+> const { name, address: { city, country } } = person;
+> 
+> console.log(city);    // "Москва"
+> console.log(country); // "Россия"
+> ```
+
+> [!NOTE]
+> 
+> **Остаточные параметры (Rest syntax)**
+> 
+> Можно собрать оставшиеся свойства в новый объект с помощью оператора `...`:
+> ```js
+> const { name, age, ...otherInfo } = person;
+> 
+> console.log(otherInfo); // { gender: "Мужской", country: "Россия" }
+> ```
+
+> [!NOTE]
+> 
+> **Использование с функциями**
+> 
+> Деструктуризация упрощает работу с объектами в параметрах функций:
+> ```js
+> function greet({ name, age }) {
+>   console.log(`Привет, ${name}! Тебе ${age} лет.`);
+> }
+> 
+> greet({ name: "Иван", age: 30 });
+> ```
+> В этом примере мы деструктурируем объект прямо в параметрах функции `greet`, извлекая только свойства `name` и `age`.
+
+> [!NOTE]
+> 
+> **Деструктуризация с массивами**
+> 
+> Можно использовать деструктуризацию объектов и массивов вместе для сложных структур:
+> ```js
+> const data = { id: 1, user: { name: "Иван", age: 30 }, tags: ["developer", "javascript"] };
+> 
+> // Деструктуризация с массивами и объектами
+> const { id, user: { name, age }, tags: [tag1, tag2] } = data;
+> 
+> console.log(tag1);  // "developer"
+> console.log(tag2);  // "javascript"
+> ```
+
+## Операции с объектом
+
+- Удаление свойства
+	Оператор `delete` позволяет удалить свойство из объекта.
+```js
+let user = { name: "Иван", age: 30 };
+delete user.age;
+console.log(user.age); // undefined
+```
+- Проверка существования свойства
+	Оператор `'key' in obj` возвращает `true`, если в объекте свойство `'key'`, в т.ч. даже если оно имеет значение `undefined`.
+```js
+let user = { name: "Иван" };
+console.log("name" in user); // true
+console.log("age" in user); // false
+```
+- Перебор свойств объекта
+	Цикл `for..in` позволяет пройтись по всем свойствам объекта.
+```js
+let user = { name: "Иван", age: 30 };
+
+for (let key in user) {
+  console.log(key, user[key]);
+}
+// "name Иван"
+// "age 30"
+```
 
 ## Методы объекта
 
@@ -244,6 +462,81 @@ user.sayBye(); // "Bye, Jackie!"
 > user.sayHi();  // "Alice"
 > user.sayBye(); // undefined, (стрелочная функция не видит 'user')
 > ```
+
+## Встроенные методы
+
+### `hasOwnProperty()`
+
+Метод `hasOwnProperty()` проверяет, является ли указанное свойство **собственным** (не унаследованным) для объекта.
+
+```js
+obj.hasOwnProperty(prop)
+```
+- `obj` - объект, у которого проверяется наличие свойства.
+- `prop` - строка или символ, имя свойства.
+
+Метод возвращает `true`, если свойство является собственным, и `false` - если нет.
+
+```js
+const obj = { name: "Иван", age: 30 };
+
+console.log(obj.hasOwnProperty('name'));  // true
+console.log(obj.hasOwnProperty('gender'));  // false
+```
+
+> [!WARNING]
+> 
+> **Важный момент**
+> 
+> `hasOwnProperty()` не проверяет свойства, унаследованные от прототипа.
+
+### `Object.keys()`
+Метод `Object.keys()` возвращает массив строк, содержащий все собственные **перечисляемые свойства** объекта.
+
+```js
+Object.keys(obj)
+```
+- `obj` - объект для получения ключей.
+
+Метод возвращает массив строк, где каждый элемент - это ключ одного из свойств объекта.
+
+```js
+const obj = { name: "Иван", age: 30, gender: "Мужской" };
+console.log(Object.keys(obj));  // ["name", "age", "gender"]
+```
+
+### `Object.values()`
+
+Метод `Object.values()` возвращает массив **значений** всех собственных перечисляемых свойств объекта.
+
+```js
+Object.values(obj)
+```
+- `obj` - объект для получения значений свойств.
+
+Метод возвращает массив значений свойств объекта.
+
+```js
+const obj = { name: "Иван", age: 30, gender: "Мужской" };
+console.log(Object.values(obj));  // ["Иван", 30, "Мужской"]
+```
+
+### `Object.entries()`
+
+Метод `Object.entries()` возвращает массив **пар ключ-значение** объекта в виде массивов из двух элементов.
+
+```js
+Object.entries(obj)
+```
+- `obj` - объект для получения пар ключ-значение.
+
+Метод возвращает массив массивов, каждый из которых содержит пару `[ключ, значение]`.
+
+```js
+const obj = { name: "Иван", age: 30, gender: "Мужской" };
+console.log(Object.entries(obj));  
+// [["name", "Иван"], ["age", 30], ["gender", "Мужской"]]
+```
 
 ## Опциональная цепочка (`?.`)
 
@@ -311,7 +604,7 @@ console.log(now); // текущие дата и время
 > 
 > **Указание конкретной даты**
 > 
-> Месяцы в JavaScript начинаются с 0, то есть январь — это 0:
+> Месяцы в JavaScript начинаются с 0, то есть январь - это 0:
 > ```js
 > const specificDate = new Date(2025, 1, 6); // 6 февраля 2025 года
 > console.log(specificDate);
@@ -509,40 +802,40 @@ console.log(now); // текущие дата и время
 > 
 > **Методы**
 > 
-> - `Number.isNaN(value)` — проверяет, является ли значение `NaN`:
+> - `Number.isNaN(value)` - проверяет, является ли значение `NaN`:
 > ```js
 > console.log(Number.isNaN(NaN)); // true
 > console.log(Number.isNaN(100)); // false
 > console.log(Number.isNaN("hello")); // false
 > ```
-> - `Number.isFinite(value)` — проверяет, является ли значение конечным числом (не бесконечность и не NaN):
+> - `Number.isFinite(value)` - проверяет, является ли значение конечным числом (не бесконечность и не NaN):
 > ```js
 > console.log(Number.isFinite(100)); // true
 > console.log(Number.isFinite(Infinity)); // false
 > console.log(Number.isFinite(-Infinity)); // false
 > console.log(Number.isFinite(NaN)); // false
 > ```
-> - `Number.isInteger(value)` — проверяет, является ли значение целым числом:
+> - `Number.isInteger(value)` - проверяет, является ли значение целым числом:
 > ```js
 > console.log(Number.isInteger(4)); // true
 > console.log(Number.isInteger(4.5)); // false
 > ```
-> - `Number.parseFloat(value)` — преобразует строку в число с плавающей точкой:
+> - `Number.parseFloat(value)` - преобразует строку в число с плавающей точкой:
 > ```js
 > console.log(Number.parseFloat("3.14")); // 3.14
 > console.log(Number.parseFloat("3.14abc")); // 3.14
 > ```
-> - `Number.parseInt(value, radix)` — преобразует строку в целое число с заданной системой счисления:
+> - `Number.parseInt(value, radix)` - преобразует строку в целое число с заданной системой счисления:
 > ```js
 > console.log(Number.parseInt("101", 2)); // 5 (из бинарной строки)
 > console.log(Number.parseInt("255", 16)); // 591 (из шестнадцатиричной строки)
 > ```
-> - `Number.toFixed(digits)` — форматирует число с заданным количеством знаков после запятой:
+> - `Number.toFixed(digits)` - форматирует число с заданным количеством знаков после запятой:
 > ```js
 > let num = 3.14159;
 > console.log(num.toFixed(2)); // "3.14"
 > ```
-> - `Number.toPrecision(precision)` — форматирует число с заданным количеством значащих цифр:
+> - `Number.toPrecision(precision)` - форматирует число с заданным количеством значащих цифр:
 > ```js
 > let num = 12345.6789;
 > console.log(num.toPrecision(5)); // "12346"
@@ -646,8 +939,8 @@ console.log(now); // текущие дата и время
 > 
 > Прокси создаётся с помощью конструктора `Proxy`, который принимает два аргумента:
 > 
-> 1. `target` — целевой объект, для которого будет создан прокси.
-> 2. `handler` — объект, содержащий функции-ловушки для перехвата операций с целевым объектом.
+> 1. `target` - целевой объект, для которого будет создан прокси.
+> 2. `handler` - объект, содержащий функции-ловушки для перехвата операций с целевым объектом.
 > 
 > ```js
 > const target = {
